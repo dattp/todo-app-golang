@@ -2,6 +2,7 @@ package todobiz
 
 import (
 	"context"
+	"todo-app/common"
 	"todo-app/modules/todo/todomodel"
 )
 
@@ -23,5 +24,9 @@ func (biz *createTodoBiz) CreateTodo(ctx context.Context, data *todomodel.TodoCr
 	}
 
 	err := biz.store.Create(ctx, data)
+
+	if err != nil {
+		return common.ErrCannotCreateEntity(todomodel.EntityName, err)
+	}
 	return err
 }

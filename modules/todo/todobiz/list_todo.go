@@ -27,5 +27,9 @@ func (biz *listTodoBiz) ListTodo(ctx context.Context,
 
 	result, err := biz.store.ListDataByCondition(ctx, nil, filter, paging)
 
+	if err != nil {
+		return nil, common.ErrCannotListEntity(todomodel.EntityName, err)
+	}
+
 	return result, err
 }

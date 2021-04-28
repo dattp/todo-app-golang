@@ -2,7 +2,6 @@ package todobiz
 
 import (
 	"context"
-	"errors"
 	"todo-app/common"
 	"todo-app/modules/todo/todomodel"
 )
@@ -25,14 +24,15 @@ func (biz *getTodoBiz) GetTodo(ctx context.Context, id int) (*todomodel.Todo, er
 	data, err := biz.store.FindDataByCondition(ctx, map[string]interface{}{"id": id})
 
 	if err != nil {
+
 		if err == common.RecordNotFound {
-			return nil, err
+			return nil, common.ErrCannotGetEntity(todomodel.EntityName, err)
 		}
-		return nil, err
+		return nil, common.ErrCannotGetEntity(todomodel.EntityName, err)
 	}
 
 	if data.Status == 0 {
-		return nil, errors.New("todo deleted")
+		return nil, common.ErrEntityDeleted(todomodel.EntityName, nil)
 	}
 
 	return data, err

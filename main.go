@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 	"todo-app/component"
+	"todo-app/middleware"
 	"todo-app/modules/todo/todotransport/gintodo"
 )
 
@@ -38,14 +39,14 @@ func main() {
 
 func runService(db *gorm.DB) error {
 
+	appCxt := component.NewAppContext(db)
 	r := gin.Default()
+	r.Use(middleware.Recover(appCxt))
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
-
-	appCxt := component.NewAppContext(db)
 
 	todo := r.Group("/todos")
 	{

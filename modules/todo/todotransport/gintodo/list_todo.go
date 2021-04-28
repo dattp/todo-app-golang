@@ -14,18 +14,12 @@ func ListTodo(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var filter todomodel.Filter
 		if err := c.ShouldBind(&filter); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		var paging common.Paging
 		if err := c.ShouldBind(&paging); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(common.ErrInternal(err))
 		}
 
 		paging.Fulfill()
@@ -35,10 +29,7 @@ func ListTodo(appCtx component.AppContext) gin.HandlerFunc {
 
 		result, err := biz.ListTodo(c.Request.Context(), &filter, &paging)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(err)
 		}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(result, paging, filter))

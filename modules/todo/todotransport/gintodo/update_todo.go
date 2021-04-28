@@ -15,31 +15,19 @@ func UpdateTodo(ctx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			c.JSON(
-				http.StatusBadRequest, gin.H{
-					"error": err.Error(),
-				})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 		var data todomodel.TodoUpdate
 
 		if err := c.ShouldBind(&data); err != nil {
-			c.JSON(
-				http.StatusBadRequest, gin.H{
-					"error": err.Error(),
-				})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		store := todostorage.NewSQLStore(ctx.GetMainDBConnection())
 		biz := todobiz.NewUpdateTodoBiz(store)
 
 		if err := biz.UpdateTodo(c.Request.Context(), id, &data); err != nil {
-			c.JSON(
-				http.StatusBadRequest, gin.H{
-					"error": err.Error(),
-				})
-			return
+			panic(err)
 		}
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
 	}

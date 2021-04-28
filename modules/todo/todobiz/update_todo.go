@@ -2,7 +2,7 @@ package todobiz
 
 import (
 	"context"
-	"errors"
+	"todo-app/common"
 	"todo-app/modules/todo/todomodel"
 )
 
@@ -31,15 +31,15 @@ func (biz *updateTodoBiz) UpdateTodo(ctx context.Context, id int, data *todomode
 	oldData, err := biz.store.FindDataByCondition(ctx, map[string]interface{}{"id": id})
 
 	if err != nil {
-		return err
+		return common.ErrCannotGetEntity(todomodel.EntityName, err)
 	}
 
 	if oldData.Status == 0 {
-		return errors.New("data deleted")
+		return common.ErrEntityDeleted(todomodel.EntityName, nil)
 	}
 
 	if err := biz.store.UpdateData(ctx, id, data); err != nil {
-		return err
+		return common.ErrCannotUpdateEntity(todomodel.EntityName, err)
 	}
 
 	return nil

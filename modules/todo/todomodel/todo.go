@@ -6,6 +6,8 @@ import (
 	"todo-app/common"
 )
 
+const EntityName = "Todo"
+
 type Todo struct {
 	common.SQLModel `json:",inline"`
 	Title           string `json:"title" gorm:"column:title"`

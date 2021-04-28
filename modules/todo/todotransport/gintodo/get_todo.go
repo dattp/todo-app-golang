@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"todo-app/common"
 	"todo-app/component"
 	"todo-app/modules/todo/todobiz"
 	"todo-app/modules/todo/todostorage"
@@ -12,11 +13,9 @@ import (
 func GetTodo(appCtx component.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
+
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		store := todostorage.NewSQLStore(appCtx.GetMainDBConnection())
@@ -25,10 +24,7 @@ func GetTodo(appCtx component.AppContext) gin.HandlerFunc {
 		data, err := biz.GetTodo(c.Request.Context(), id)
 
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(err)
 		}
 		c.JSON(http.StatusOK, data)
 	}

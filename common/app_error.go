@@ -72,7 +72,7 @@ func ErrInvalidRequest(err error) *AppError {
 }
 
 func ErrInternal(err error) *AppError {
-	return NewFullErrorResponse(http.StatusInternalServerError, err, "something happend with server", err.Error(), "ErrInternal")
+	return NewFullErrorResponse(http.StatusInternalServerError, err, "something happened with server", err.Error(), "ErrInternal")
 }
 
 func ErrCannotListEntity(entity string, err error) *AppError {
