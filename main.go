@@ -5,41 +5,41 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"net/http"
 	"os"
-	"time"
 	"todo-app/component"
+	"todo-app/component/uploadprovider"
 	"todo-app/middleware"
 	"todo-app/modules/todo/todotransport/gintodo"
+	"todo-app/modules/upload/uploadtransport/ginupload"
 )
 
 func main() {
+
+	s3BucketName := os.Getenv("S3BucketName")
+	s3Region := os.Getenv("S3Region")
+	s3APIKey := os.Getenv("S3APIKey")
+	s3SecretKey := os.Getenv("S3SecretKey")
+	s3Domain := os.Getenv("S3Domain")
+	s3Provider := uploadprovider.NewS3Provider(s3BucketName, s3Region, s3APIKey, s3SecretKey, s3Domain)
+
 	dsn := os.Getenv("DBConnectionStr")
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold:             time.Second,   // Slow SQL threshold
-			LogLevel:                  logger.Silent, // Log level
-			IgnoreRecordNotFoundError: true,          // Ignore ErrRecordNotFound error for logger
-			Colorful:                  false,         // Disable color
-		},
-	)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
+	fmt.Println(dsn)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 	fmt.Println(db, err)
-	if err := runService(db); err != nil {
+	if err := runService(db, s3Provider); err != nil {
 		log.Fatalln(err)
 	}
 }
 
-func runService(db *gorm.DB) error {
+func runService(db *gorm.DB, uploadProvider uploadprovider.UploadProvider) error {
 
-	appCxt := component.NewAppContext(db)
+	appCxt := component.NewAppContext(db, uploadProvider)
 	r := gin.Default()
 	r.Use(middleware.Recover(appCxt))
 	r.GET("/ping", func(c *gin.Context) {
@@ -47,6 +47,8 @@ func runService(db *gorm.DB) error {
 			"message": "pong",
 		})
 	})
+
+	r.POST("/upload", ginupload.Upload(appCxt))
 
 	todo := r.Group("/todos")
 	{

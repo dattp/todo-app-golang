@@ -10,8 +10,9 @@ const EntityName = "Todo"
 
 type Todo struct {
 	common.SQLModel `json:",inline"`
-	Title           string `json:"title" gorm:"column:title"`
-	Detail          string `json:"detail" gorm:"column:detail"`
+	Title           string        `json:"title" gorm:"column:title;"`
+	Detail          string        `json:"detail" gorm:"column:detail;"`
+	Image           *common.Image `json:"image" gorm:"column:image;"`
 }
 
 func (Todo) TableName() string {
@@ -19,8 +20,9 @@ func (Todo) TableName() string {
 }
 
 type TodoUpdate struct {
-	Title  *string `json:"title" gorm:"column:title"`
-	Detail *string `json:"detail" gorm:"column:detail"`
+	Title  *string       `json:"title" gorm:"column:title"`
+	Detail *string       `json:"detail" gorm:"column:detail"`
+	Image  *common.Image `json:"image" gorm:"column:image;"`
 }
 
 func (TodoUpdate) TableName() string {
@@ -29,9 +31,10 @@ func (TodoUpdate) TableName() string {
 
 // TodoCreate vi struct tu csdl lên datamodel có thể nhiều hơn là struct create nên sẽ tạo riêng ra
 type TodoCreate struct {
-	Id     int    `json:"id" gorm:"column:id"`
-	Title  string `json:"title" gorm:"column:title"`
-	Detail string `json:"detail" gorm:"column:detail"`
+	Id     int           `json:"id" gorm:"column:id"`
+	Title  string        `json:"title" gorm:"column:title"`
+	Detail string        `json:"detail" gorm:"column:detail"`
+	Image  *common.Image `json:"image" gorm:"column:image;"`
 }
 
 func (TodoCreate) TableName() string {
